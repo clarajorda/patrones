@@ -70,8 +70,8 @@ def show_patrones():
 # -- show the editable list
 @app.route('/list-editable')
 def show_and_edit_patrones():
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in g.db.fetchall() ]
     return render_template('lista-editable.html', patrones=patrones)
 
 # -- show the description for a single patter
@@ -84,15 +84,15 @@ def show_single_pattern(id_pattern):
 # -- edit a pattern
 @app.route('/new-edition-<id_pattern>')
 def edit_entry(id_pattern):
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    g.db.execute('select id, titulo, descripcion, url from patrones where id = %s', (id_pattern,) )
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in g.db.fetchall() ]
     return render_template('editar.html', patron=patron[0])
 
 # -- update the database with the edit information
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
 def edit_pattern(id_pattern):
-    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
-    g.db.commit()
+    g.db.execute('update patrones set titulo = %s, descripcion = %s, url = %s where id = %s', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern) )
+    g.conn.commit()
     flash('Edition was successfully posted')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 
