@@ -57,6 +57,13 @@ def show_patrones():
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
     return render_template('lista.html', patrones=patrones)
 
+# -- show the editable list
+@app.route('/list-editable')
+def show_and_edit_patrones():
+    cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    return render_template('lista-editable.html', patrones=patrones)
+
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
