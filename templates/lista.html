@@ -2,16 +2,16 @@
 {% block title %}Lista de Patrones{% endblock %}
 
 {% block contenido %}
-<p> </p>
 
-<h2> Lista de patrones </h2>
+<p> </p>
+<h2> <FONT COLOR="#4169E1"> Lista de patrones </FONT> </h2>
 <hr>
 <p> </p>
 
 {% for p in patrones %} 
-<div class="well-sm"> 
-  <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" > {{ p.titulo }}. Descripcion: {{ p.descripcion}} </a> 
-  <a href="{{ url_for('edit_entry', id_pattern=p.id) }}" <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </a>
+<div class="well"> 
+  <h4> <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" > {{ p.titulo }}. Descripcion: {{ p.descripcion}} </a> 
+  <a href="{{ url_for('edit_entry', id_pattern=p.id) }}" <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </a> </h4>
 <p> </p>
 </div>
 {% endfor %}
