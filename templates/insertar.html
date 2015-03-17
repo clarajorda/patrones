@@ -6,10 +6,10 @@
 <p> </p>
 
 <h2>Insertar nuevo patron</h2>
-
+<hr>
 <p> </p>
 
-<form action="/save-entry" method="POST">
+<form action="{{url_for('save_entry')}}" method="POST">
   <div class="form-group">
     <label for="titulo">Titulo </label>
     <input type="text" class="form-control" id="titulo" name='titulo' placeholder="Titulo">

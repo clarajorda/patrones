@@ -45,7 +45,6 @@ def insert_entry():
 # -- save the new information into the database
 @app.route('/save-entry', methods=['POST'])
 def save_entry():
-
     g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
     g.db.commit()
     flash('New entry was successfully posted')
@@ -66,12 +65,13 @@ def show_single_pattern(id_pattern):
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
-#@app.route('/edit-pattern-<id_pattern>', methods=['POST'])
+#
+#@app.route('/edit-pattern', methods=['POST'])
 #def edit_pattern(id_pattern):
-#    new_titulo      = request.form.get('titulo')
-#    new_descripcion = request.form.get('descripcion')
-#    new_url         = request.form.get('url')
-      
+#    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ?) where id = ?', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')], (id_pattern,) )
+#    g.db.commit()
+#    flash('Edition was successfully posted')
+#    return redirect(url_for('edit-single-pattern'))
 
 # -- main function
 if __name__ == '__main__':
