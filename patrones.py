@@ -1,36 +1,46 @@
 # all the imports
-import sqlite3
+import os, urlparse
+import psycopg2
+import sys, logging
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash
 from flask_bootstrap import Bootstrap
 
 
 # configuration
-DATABASE = '/home/jorda/patrones/datos.db'
-DEBUG = True
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
 SECRET_KEY = 'development key'
-USERNAME = 'admin'
-PASSWORD = 'default'
 
 # create our little application :)
 app = Flask(__name__)
 app.config.from_object(__name__)
 Bootstrap(app)
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 # -- define the conection
 def connect_db():
-    return sqlite3.connect(app.config['DATABASE'])
+    return psycopg2.connect(
+        database=url.path[1:],
+        user=url.username,
+        password=url.password,
+        host=url.hostname,
+        port=url.port
+    )
 
 # -- connect to the database
 @app.before_request
 def before_request():
-    g.db = connect_db()
+    g.conn = connect_db()
+    g.db = g.conn.cursor()
 
 @app.teardown_request
 def teardown_request(exception):
     db = getattr(g, 'db', None)
     if db is not None:
         db.close()
+        g.conn.close()
 
 # -- home
 @app.route('/')
@@ -45,16 +55,16 @@ def insert_entry():
 # -- save the new information into the database
 @app.route('/save-entry', methods=['POST'])
 def save_entry():
-    g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
-    g.db.commit()
+    g.db.execute('insert into patrones (titulo, descripcion, url) values (%s, %s, %s)', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')) )
+    g.conn.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('show_patrones'))
 
 # -- show the list of patterns
 @app.route('/list')
 def show_patrones():
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in g.db.fetchall() ]
     return render_template('lista.html', patrones=patrones)
 
 # -- show the editable list
@@ -67,8 +77,8 @@ def show_and_edit_patrones():
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    g.db.execute('select id, titulo, descripcion, url from patrones where id = %s', (id_pattern,) )
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in g.db.fetchall() ]
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
