@@ -74,7 +74,7 @@ def edit_entry(id_pattern):
 # -- update the database with the edit information
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
 def edit_pattern(id_pattern):
-    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ?) where id = ?', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern] )
+    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
     g.db.commit()
     flash('Edition was successfully posted')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
