@@ -86,6 +86,13 @@ def edit_pattern(id_pattern):
     flash('Edition was successfully posted')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 
+# -- remove an entry from the database
+@app.route('/remove-entry-<id_pattern>')
+def remove_entry(id_pattern):
+    g.db.execute('delete from patrones where id = ?', (id_pattern,))
+    g.db.commit()
+    return redirect(url_for('show_patrones'))
+
 # -- main function
 if __name__ == '__main__':
     app.run()
