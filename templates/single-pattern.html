@@ -2,13 +2,14 @@
 {% block title %}Patron{% endblock %}
 
 {% block contenido %}
-<h2> Detalles patron </h2>
 
 <p> </p>
+<h2> <FONT COLOR="#4169E1"> Detalles patron </FONT> </h2>
+<hr>
 <p> </p>
 
-<h4> Titulo del patron: {{ patron.titulo }}              </h4>
-<h4> Descripcion: {{ patron.descripcion }}               </h4>
-<h4> URL: <a href="{{ patron.url }}" target="_blank"> Link original </a> </h4>
+<h4> <b> Titulo del patron: </b> {{ patron.titulo }}              </h4>
+<h4> <b> Descripcion: </b> {{ patron.descripcion }}               </h4>
+<h4> <b> URL: </b> <a href="{{ patron.url }}" target="_blank"> Link original </a> </h4>
 
 {% endblock %}

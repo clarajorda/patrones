@@ -8,23 +8,6 @@
 
 {% block content %}
 
-<!--
-<div class="container">
-  
-  <p> </p>
-
-  <div class="header clearfix">
-    <nav>
-      <ul class="nav nav-pills pull-right">
-        <li role="presentation" class="active"><a href="{{ url_for('show_patrones') }}">  Home           </a></li>
-        <li role="presentation">               <a href="{{ url_for('insert_entry')  }}"> Insertar patron </a></li>
-      </ul>
-    </nav>
-    <h1 class="text-muted"> <b> Coleccion de patrones de ganchillo </b> </h1>
-    
-  </div>
--->
-
 <div class="container">
 
   <!-- Static navbar -->
@@ -38,14 +21,15 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="{{ url_for('go_home') }}"> Patrones ganchillo  </a>
+        <a class="navbar-brand" href="{{ url_for('go_home') }}"> <FONT COLOR="#4169E1"> Patrones ganchillo </FONT>  </a>
       </div>
 
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li class="active"> <a href="{{ url_for('go_home') }}">Home</a></li>
-          <li><a href="{{ url_for('show_patrones') }}"> Lista patrones</a></li>
-          <li><a href="{{ url_for('insert_entry')  }}"> Insertar patron</a></li>
+          <li class="active"> <a href="{{ url_for('go_home') }}"> Home </a></li>
+          <li><a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
+          <li><a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
+          <li><a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
         </ul>
       </div><!--/.nav-collapse -->
 

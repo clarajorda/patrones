@@ -57,6 +57,13 @@ def show_patrones():
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
     return render_template('lista.html', patrones=patrones)
 
+# -- show the editable list
+@app.route('/list-editable')
+def show_and_edit_patrones():
+    cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    return render_template('lista-editable.html', patrones=patrones)
+
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
@@ -65,13 +72,19 @@ def show_single_pattern(id_pattern):
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
-#
-#@app.route('/edit-pattern', methods=['POST'])
-#def edit_pattern(id_pattern):
-#    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ?) where id = ?', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')], (id_pattern,) )
-#    g.db.commit()
-#    flash('Edition was successfully posted')
-#    return redirect(url_for('edit-single-pattern'))
+@app.route('/new-edition-<id_pattern>')
+def edit_entry(id_pattern):
+    cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    return render_template('editar.html', patron=patron[0])
+
+# -- update the database with the edit information
+@app.route('/edit-pattern-<id_pattern>', methods=['POST'])
+def edit_pattern(id_pattern):
+    g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
+    g.db.commit()
+    flash('Edition was successfully posted')
+    return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 
 # -- main function
 if __name__ == '__main__':
