@@ -4,7 +4,7 @@
 {% block contenido %}
 
 <p> </p>
-<h2> <FONT COLOR="#4169E1"> Detalles patron </FONT> </h2>
+<h2> <FONT COLOR="#4169E1"> Detalles patron </FONT> </h2> 
 <hr>
 <p> </p>
 
@@ -12,4 +12,11 @@
 <h4> <b> Descripcion: </b> {{ patron.descripcion }}               </h4>
 <h4> <b> URL: </b> <a href="{{ patron.url }}" target="_blank"> Link original </a> </h4>
 
+<hr>
+<p> </p>
+
+<h4> <a href="{{ url_for('remove_entry', id_pattern=patron.id) }}" <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> </a> Borrar patron</h4>
+
+
 {% endblock %}
+
