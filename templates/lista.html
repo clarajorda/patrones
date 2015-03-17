@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Lista de Patrones{% endblock %}
+
+{% block contenido %}
+<p> </p>
+
+<h2> Lista de patrones </h2>
+
+<p> </p>
+
+<div class="list-group"> 
+
+  {% for p in patrones %} 
+  <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" class="list-group-item"> {{ p.titulo }}. Descripcion: {{ p.descripcion}}  </a>
+  {% endfor %}
+
+</div>
+
+{% endblock %}
