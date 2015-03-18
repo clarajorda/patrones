@@ -21,6 +21,11 @@ Bootstrap(app)
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
 
+# -- define a common function to execute command
+def extract_pattern(cur_):
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur_.fetchall() ]
+    return patrones
+
 # -- connect to the database
 @app.before_request
 def before_request():
@@ -54,28 +59,28 @@ def save_entry():
 @app.route('/list')
 def show_patrones():
     cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    patrones = extract_pattern(cur)
     return render_template('lista.html', patrones=patrones)
 
 # -- show the editable list
 @app.route('/list-editable')
 def show_and_edit_patrones():
     cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    patrones = extract_pattern(cur)
     return render_template('lista-editable.html', patrones=patrones)
 
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
     cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    patron = extract_pattern(cur)
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
 @app.route('/new-edition-<id_pattern>')
 def edit_entry(id_pattern):
     cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur.fetchall() ]
+    patron = extract_pattern(cur)
     return render_template('editar.html', patron=patron[0])
 
 # -- update the database with the edit information
