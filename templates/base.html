@@ -1,9 +1,9 @@
 {% extends "bootstrap/base.html" %}
 
-{% block content %}
+{% block navbar %}
 
 <div class="container">
-
+<!-- navbar aqui -->
   <!-- Static navbar -->
   <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -35,7 +35,13 @@
 
     </div><!--/.container-fluid -->
   </nav>
-  
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
 {% block contenido %}{% endblock %}
 
 </div>
