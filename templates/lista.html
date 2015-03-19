@@ -14,10 +14,13 @@
 {% for p in patrones %} 
 <div class="well"> 
   <h4> <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" > {{ p.titulo }}. Descripcion: {{ p.descripcion}} </a> 
-<p> </p>
+      
+    {% for lb in p.labels.split(',') %}
+    <span class="label label-info"> {{lb}}  </span> &nbsp;   
+    {% endfor %}
+
 </div>
+
 {% endfor %}
-
-
 
 {% endblock %}

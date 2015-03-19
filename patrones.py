@@ -50,16 +50,24 @@ def insert_entry():
 # -- save the new information into the database
 @app.route('/save-entry', methods=['POST'])
 def save_entry():
-    g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
+    cur = g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
+    current_id =  (cur.lastrowid)
+    values = request.form.get('labels').split()
+    tupla_values = [(current_id,x,) for x in values]
+    print tupla_values
+    g.db.executemany('insert into labels (patron_id, etiqueta) values (?,?)', tupla_values )
     g.db.commit()
     flash('New entry was successfully posted')
     return redirect(url_for('show_patrones'))
 
 # -- show the list of patterns
-@app.route('/list')
+@app.route('/list') 
 def show_patrones():
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = extract_pattern(cur)
+    # cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    # patrones = extract_pattern(cur)
+    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") 
+    from patrones join labels on patrones.id = labels.patron_id group by patrones.id ''')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in cur.fetchall() ]    
     return render_template('lista.html', patrones=patrones)
 
 # -- show the editable list
@@ -72,8 +80,14 @@ def show_and_edit_patrones():
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
-    cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
-    patron = extract_pattern(cur)
+
+    #cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
+    #patron = extract_pattern(cur)
+
+    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") 
+    from patrones join labels on patrones.id = labels.patron_id group by patrones.id having patrones.id = ?''', (id_pattern,))
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in cur.fetchall() ]    
+
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
