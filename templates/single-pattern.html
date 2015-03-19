@@ -11,6 +11,12 @@
 <h4> <b> Titulo del patron: </b> {{ patron.titulo }}              </h4>
 <h4> <b> Descripcion: </b> {{ patron.descripcion }}               </h4>
 <h4> <b> URL: </b> <a href="{{ patron.url }}" target="_blank"> Link original </a> </h4>
+<h4> <b> Etiquetas: </b> 
+  {% if patron.labels %}
+  {% for lb in patron.labels.split(',') %}
+  <span class="label label-info"> {{lb}}  </span> &nbsp;   
+  {% endfor %}
+  {% endif %}
 
 <hr>
 <p> </p>

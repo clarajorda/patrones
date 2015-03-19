@@ -24,12 +24,7 @@
           <li {% if 'list' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
           <li {% if 'inst' == active_page%} class="active" {% endif %}> <a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
           <li {% if 'edit' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
-          <!--
-	  <li class="active"> <a href="{{ url_for('go_home') }}"> Home </a></li>
-          <li><a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
-          <li><a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
-          <li><a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
-	  -->
+
         </ul>
       </div> <!--/.nav-collapse -->
 
@@ -56,4 +51,41 @@
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-tagsinput.min.js') }}"></script>
+
+  <script type="text/javascript">
+  var labels = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: {
+      url: '{{ url_for('list_labels')}}',
+      ttl: 10000,
+      filter: function(list) {
+        return $.map(list.results, function(label) { return { name: label }; });
+      }
+    }
+  });
+  labels.initialize();
+
+  $('#labels').tagsinput({
+    confirmKeys: [13, 188, 32], // enter, comma and space
+    trimValue: true,
+    freeInput: true,
+    typeaheadjs: {
+      displayKey: 'name',
+      source: labels.ttAdapter(),
+    }
+  });
+  </script>
+{% endblock %}
+
+{%- block styles %}
+  {{super()}}
+  <link href="{{ url_for('static', filename='bootstrap-tagsinput.css') }}" rel="stylesheet" media="screen">
+  <link href="{{ url_for('static', filename='app.css') }}" rel="stylesheet" media="screen">
 {% endblock %}

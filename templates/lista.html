@@ -8,16 +8,25 @@
 
 <p> </p>
 <h2> <FONT COLOR="#4169E1"> Lista de patrones </FONT> </h2>
+
+
+<!-- #4169E1 -->
+
 <hr>
 <p> </p>
 
 {% for p in patrones %} 
 <div class="well"> 
   <h4> <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" > {{ p.titulo }}. Descripcion: {{ p.descripcion}} </a> 
-<p> </p>
+
+    {% if p.labels %}
+    {% for lb in p.labels.split(',') %}
+    <span class="label label-info"> {{lb}}  </span> &nbsp;   
+    {% endfor %}
+    {% endif %}
+
 </div>
+
 {% endfor %}
-
-
 
 {% endblock %}
