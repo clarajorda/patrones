@@ -47,3 +47,14 @@
 </div>
 
 {% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='bootstrap3-typeahead.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-tagsinput.min.js') }}"></script>
+{% endblock %}
+
+{%- block styles %}
+  {{super()}}
+  <link href="{{ url_for('static', filename='bootstrap-tagsinput.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
