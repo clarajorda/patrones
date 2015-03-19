@@ -1,7 +1,7 @@
 # all the imports
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, \
-     abort, render_template, flash
+     abort, render_template, flash, jsonify
 from flask_bootstrap import Bootstrap
 
 
@@ -125,6 +125,15 @@ def remove_entry(id_pattern):
     g.db.execute('delete from labels where patron_id = ?', (id_pattern,))
     g.db.commit()
     return redirect(url_for('show_patrones'))
+
+# -- list all labels for the autocompletion
+@app.route('/labels/list')
+def list_labels():
+    #g.db.execute(...)
+    labels = ['hola', 'cuore']
+
+    return jsonify(results=labels)
+
 
 # -- main function
 if __name__ == '__main__':
