@@ -6,7 +6,7 @@ from flask_bootstrap import Bootstrap
 
 
 # configuration
-DATABASE = '/home/jorda/patrones/datos.db'
+DATABASE = 'datos.db'
 DEBUG = True
 SECRET_KEY = 'development key'
 USERNAME = 'admin'
@@ -52,7 +52,7 @@ def insert_entry():
 def save_entry():
     g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
     g.db.commit()
-    flash('New entry was successfully posted')
+    flash('New entry was successfully posted', 'success') #success, info, warning o danger
     return redirect(url_for('show_patrones'))
 
 # -- show the list of patterns
