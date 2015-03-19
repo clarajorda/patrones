@@ -47,3 +47,45 @@
 </div>
 
 {% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-tagsinput.min.js') }}"></script>
+
+  <script type="text/javascript">
+  var labels = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    limit: 10,
+    prefetch: {
+      // url points to a json file that contains an array of country names, see
+      // https://github.com/twitter/typeahead.js/blob/gh-pages/data/countries.json
+      url: '{{ url_for('list_labels')}}',
+      // the json file contains an array of strings, but the Bloodhound
+      // suggestion engine expects JavaScript objects so this converts all of
+      // those strings
+      filter: function(list) {
+        return $.map(list.results, function(label) { return { name: label }; });
+      }
+    }
+  });
+  labels.initialize();
+
+  $('#labels').tagsinput({
+    confirmKeys: [13, 188, 32], // enter, comma and space
+    trimValue: true,
+    freeInput: true,
+    typeaheadjs: {
+      displayKey: 'name',
+      source: labels.ttAdapter(),
+    }
+  });
+  </script>
+{% endblock %}
+
+{%- block styles %}
+  {{super()}}
+  <link href="{{ url_for('static', filename='bootstrap-tagsinput.css') }}" rel="stylesheet" media="screen">
+  <link href="{{ url_for('static', filename='app.css') }}" rel="stylesheet" media="screen">
+{% endblock %}
