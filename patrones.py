@@ -65,8 +65,9 @@ def save_entry():
 def show_patrones():
     # cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
     # patrones = extract_pattern(cur)
-    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") 
-    from patrones join labels on patrones.id = labels.patron_id group by patrones.id ''')
+
+    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") from patrones join labels on patrones.id = labels.patron_id 
+    group by patrones.id ''')
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in cur.fetchall() ]    
     return render_template('lista.html', patrones=patrones)
 
@@ -84,8 +85,8 @@ def show_single_pattern(id_pattern):
     #cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
     #patron = extract_pattern(cur)
 
-    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") 
-    from patrones join labels on patrones.id = labels.patron_id group by patrones.id having patrones.id = ?''', (id_pattern,))
+    cur = g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, group_concat(labels.etiqueta,",") from patrones join labels on patrones.id = labels.patron_id 
+    group by patrones.id having patrones.id = ?''', (id_pattern,))
     patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in cur.fetchall() ]    
 
     return render_template('single-pattern.html', patron=patron[0])
@@ -95,13 +96,25 @@ def show_single_pattern(id_pattern):
 def edit_entry(id_pattern):
     cur = g.db.execute('select id, titulo, descripcion, url from patrones where id = ?', (id_pattern,) )
     patron = extract_pattern(cur)
-    return render_template('editar.html', patron=patron[0])
+    cur2 = g.db.execute('select patron_id, etiqueta where id = ?', (id_pattern,))
+    labels = [ dict( patron_id=row[0], etiqueta=row[1] ) for row in cur2.fetchall() ]
+    return render_template('editar.html', patron=patron[0], labels=labels)
 
 # -- update the database with the edit information
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
 def edit_pattern(id_pattern):
+
+    #g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
+    #g.db.commit()
+
     g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
+    current_id =  (cur.lastrowid)
+    values = request.form.get('labels').split()
+    tupla_values = [(current_id,x,) for x in values]
+    print tupla_values
+    g.db.executemany('update labels set (patron_id, etiqueta) values (?,?)', tupla_values )
     g.db.commit()
+
     flash('Edition was successfully posted')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 
@@ -109,6 +122,7 @@ def edit_pattern(id_pattern):
 @app.route('/remove-entry-<id_pattern>')
 def remove_entry(id_pattern):
     g.db.execute('delete from patrones where id = ?', (id_pattern,))
+    g.db.execute('delete from labels where patron_id = ?', (id_pattern,))
     g.db.commit()
     return redirect(url_for('show_patrones'))
 
