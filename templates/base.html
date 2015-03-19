@@ -24,12 +24,7 @@
           <li {% if 'list' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
           <li {% if 'inst' == active_page%} class="active" {% endif %}> <a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
           <li {% if 'edit' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
-          <!--
-	  <li class="active"> <a href="{{ url_for('go_home') }}"> Home </a></li>
-          <li><a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
-          <li><a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
-          <li><a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
-	  -->
+
         </ul>
       </div> <!--/.nav-collapse -->
 
@@ -57,14 +52,9 @@
   var labels = new Bloodhound({
     datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
     queryTokenizer: Bloodhound.tokenizers.whitespace,
-    limit: 10,
     prefetch: {
-      // url points to a json file that contains an array of country names, see
-      // https://github.com/twitter/typeahead.js/blob/gh-pages/data/countries.json
       url: '{{ url_for('list_labels')}}',
-      // the json file contains an array of strings, but the Bloodhound
-      // suggestion engine expects JavaScript objects so this converts all of
-      // those strings
+      ttl: 10000,
       filter: function(list) {
         return $.map(list.results, function(label) { return { name: label }; });
       }

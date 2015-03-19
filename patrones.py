@@ -52,8 +52,8 @@ def insert_entry():
 def save_entry():
     cur = g.db.execute('insert into patrones (titulo, descripcion, url) values (?, ?, ?)', [request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')])
     current_id =  (cur.lastrowid)
-    values = request.form.get('labels').split()
-    tupla_values = [(current_id,x,) for x in values]
+    values = request.form.get('labels').split(',')
+    tupla_values = [(current_id,x,) for x in values if x]
     # print tupla_values
     g.db.executemany('insert into labels (patron_id, etiqueta) values (?,?)', tupla_values )
     g.db.commit()
@@ -99,22 +99,17 @@ def edit_entry(id_pattern):
     patron = extract_pattern(cur)
     cur2 = g.db.execute('select etiqueta from labels where patron_id = ?', (id_pattern,))
     labels = [ row[0] for row in cur2.fetchall() ]
-    new_labels = ' '.join(labels)
-    return render_template('editar.html', patron=patron[0], labels=new_labels)
+
+    return render_template('editar.html', patron=patron[0], labels=','.join(labels))
 
 # -- update the database with the edit information
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
 def edit_pattern(id_pattern):
-
-    #g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
-    #g.db.commit()
-
     cur = g.db.execute('update patrones set titulo = ?, descripcion = ?, url = ? where id = ?', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern,) )
 
-    values = request.form.get('labels').split()
-    print values
-    tupla_values = [ ( int(id_pattern),x ) for x in values ]
-    print tupla_values
+    values = request.form.get('labels').split(',')
+    tupla_values = [ ( int(id_pattern),x ) for x in values if x]
+
     g.db.execute('delete from labels where patron_id = ?', id_pattern, )
     g.db.executemany('insert into labels (patron_id, etiqueta) values (?,?)', tupla_values )
     g.db.commit()
@@ -133,9 +128,8 @@ def remove_entry(id_pattern):
 # -- list all labels for the autocompletion
 @app.route('/labels/list')
 def list_labels():
-    #g.db.execute(...)
-    labels = ['hola', 'cuore']
-
+    cur = g.db.execute("select distinct etiqueta from labels order by etiqueta")
+    labels = [ row[0] for row in cur.fetchall() ]
     return jsonify(results=labels)
 
 
