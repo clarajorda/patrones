@@ -140,6 +140,12 @@ def list_labels():
     labels = [ row[0] for row in g.db.fetchall() ]
     return jsonify(results=labels)
 
+# -- make a search in the database
+@app.route('/search', methods=['POST'])
+def search():
+    cur = g.db.execute(''' select id, titulo, descripcion,url from patrones where titulo like ? or descripcion like ? ''',  ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%' ) )
+    patrones = extract_pattern(cur)
+    return render_template('lista.html', patrones=patrones)
 
 # -- main function
 if __name__ == '__main__':
