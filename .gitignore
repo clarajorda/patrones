@@ -1,3 +1,5 @@
 datos.db
-templates/*.html~
-*.py~
+*~
+*.pyc
+*.swp
+venv
