@@ -135,12 +135,10 @@ def list_labels():
 # -- make a search in the database
 @app.route('/search', methods=['POST'])
 def search():
-    print request.form.get('busqueda')
-    cur = g.db.execute(''' select id from patrones where titulo like ' ?% ' ''',  (request.form.get('busqueda'),) )
-    #cur = g.db.execute(''' select id from patrones where titulo like 'Sonajero%' ''' )
-    searched_id = [ row[0] for row in cur.fetchall() ]
-    return redirect( url_for('show_single_pattern', id_pattern=searched_id) )
-    
+    cur = g.db.execute(''' select id, titulo, descripcion,url from patrones where titulo like ? or descripcion like ? ''',  ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%' ) )
+    patrones = extract_pattern(cur)
+    return render_template('lista.html', patrones=patrones)
+
 # -- main function
 if __name__ == '__main__':
     app.run()
