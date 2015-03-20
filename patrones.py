@@ -132,7 +132,15 @@ def list_labels():
     labels = [ row[0] for row in cur.fetchall() ]
     return jsonify(results=labels)
 
-
+# -- make a search in the database
+@app.route('/search', methods=['POST'])
+def search():
+    print request.form.get('busqueda')
+    cur = g.db.execute(''' select id from patrones where titulo like ' ?% ' ''',  (request.form.get('busqueda'),) )
+    #cur = g.db.execute(''' select id from patrones where titulo like 'Sonajero%' ''' )
+    searched_id = [ row[0] for row in cur.fetchall() ]
+    return redirect( url_for('show_single_pattern', id_pattern=searched_id) )
+    
 # -- main function
 if __name__ == '__main__':
     app.run()
