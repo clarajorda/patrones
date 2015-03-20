@@ -35,6 +35,11 @@ def extract_pattern(cur_):
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur_.fetchall() ]
     return patrones
 
+# -- define a common function to execute command
+def extract_pattern(cur_):
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3] ) for row in cur_.fetchall() ]
+    return patrones
+
 # -- connect to the database
 @app.before_request
 def before_request():
