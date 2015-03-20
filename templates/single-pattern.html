@@ -21,8 +21,8 @@
 <hr>
 <p> </p>
 
-<h4> <a href="{{ url_for('remove_entry', id_pattern=patron.id) }}"> <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> </a> Borrar patron</h4>
-
+<a class="btn btn-default" href="{{ url_for('remove_entry', id_pattern=patron.id) }}"> Borrar patron </a> 
+<a class="btn btn-default" href="{{url_for('show_patrones')}}"> Volver a lista </a>
 
 {% endblock %}
 
