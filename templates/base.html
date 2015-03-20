@@ -1,15 +1,9 @@
 {% extends "bootstrap/base.html" %}
 
 {% block navbar %}
-<!-- navbar aqui -->
-
-{% endblock %}
-
-
-{% block content %}
 
 <div class="container">
-
+<!-- navbar aqui -->
   <!-- Static navbar -->
   <nav class="navbar navbar-default">
     <div class="container-fluid">
@@ -26,18 +20,72 @@
 
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
-          <li class="active"> <a href="{{ url_for('go_home') }}"> Home </a></li>
-          <li><a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
-          <li><a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
-          <li><a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
+	  <li {% if 'home' == active_page%} class="active" {% endif %}> <a href="{{ url_for('go_home') }}"> Home </a></li>
+          <li {% if 'list' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_patrones') }}"          > Lista patrones </a></li>
+          <li {% if 'inst' == active_page%} class="active" {% endif %}> <a href="{{ url_for('insert_entry')  }}"          > Insertar patron</a></li>
+          <li {% if 'edit' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron</a></li>
+
         </ul>
-      </div><!--/.nav-collapse -->
+      </div> <!--/.nav-collapse -->
 
     </div><!--/.container-fluid -->
   </nav>
-  
+</div>
+{% endblock %}
+
+{% block content %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container flashes">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+<div class="container">
+
 {% block contenido %}{% endblock %}
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+  {{super()}}
+  <script src="{{ url_for('static', filename='typeahead.bundle.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap-tagsinput.min.js') }}"></script>
+
+  <script type="text/javascript">
+  var labels = new Bloodhound({
+    datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    prefetch: {
+      url: '{{ url_for('list_labels')}}',
+      ttl: 10000,
+      filter: function(list) {
+        return $.map(list.results, function(label) { return { name: label }; });
+      }
+    }
+  });
+  labels.initialize();
+
+  $('#labels').tagsinput({
+    confirmKeys: [13, 188, 32], // enter, comma and space
+    trimValue: true,
+    freeInput: true,
+    typeaheadjs: {
+      displayKey: 'name',
+      source: labels.ttAdapter(),
+    }
+  });
+  </script>
+{% endblock %}
+
+{%- block styles %}
+  {{super()}}
+  <link href="{{ url_for('static', filename='bootstrap-tagsinput.css') }}" rel="stylesheet" media="screen">
+  <link href="{{ url_for('static', filename='app.css') }}" rel="stylesheet" media="screen">
 {% endblock %}

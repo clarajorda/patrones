@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% set active_page = "edit" %}
+
 {% block title %}Lista de Patrones para editar{% endblock %}
 
 {% block contenido %}
@@ -10,14 +13,33 @@
 
 <p> Escoge un elemento de la lista para editar </p>
 
+<!--
 {% for p in patrones %} 
 <div class="well"> 
   <h4> <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}" > {{ p.titulo }}. Descripcion: {{ p.descripcion}} </a> 
-  <a href="{{ url_for('edit_entry', id_pattern=p.id) }}" <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </a> </h4>
+  <a href="{{ url_for('edit_entry', id_pattern=p.id) }}"  > <span class="glyphicon glyphicon-pencil pull-right" aria-hidden="true"></span> </a> 
+  <a href="{{ url_for('remove_entry', id_pattern=p.id) }}"> <span class="glyphicon glyphicon-remove pull-right" aria-hidden="true"></span> </a> </h4>
 <p> </p>
 </div>
 {% endfor %}
+-->
 
+<div class="list-group">
 
+{% for p in patrones %}
+<div class="list-group-item clearfix">
+  <span class="pull-right">
+    <a class="btn" href="{{ url_for('edit_entry', id_pattern=p.id) }}"  > <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> </a>
+    <a class="btn" href="{{ url_for('remove_entry', id_pattern=p.id) }}"> <span class="glyphicon glyphicon-remove" aria-hidden="true"></span> </a>
+  </span>
+
+  <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}">
+    <h4 class="list-group-item-heading">{{ p.titulo }}</h4>
+  </a>
+  <p class="list-group-item-text">{{p.descripcion}}</p>
+</div>
+{% endfor %}
+
+</div>
 
 {% endblock %}
