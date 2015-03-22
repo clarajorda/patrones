@@ -12,6 +12,7 @@ urlparse.uses_netloc.append("postgres")
 DATABASE = os.environ.get("DATABASE_URL", "postgres://wwcyfcrnrnofdq:D2INVOx3bj7qKt6DACMvolcgSf@ec2-54-163-228-58.compute-1.amazonaws.com:5432/dasob1b9e96mtf")
 url = urlparse.urlparse(DATABASE)
 SECRET_KEY = 'development key'
+DEBUG = True
 
 # create our little application :)
 app = Flask(__name__)
