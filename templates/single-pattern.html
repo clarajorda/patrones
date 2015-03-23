@@ -13,7 +13,7 @@
 <h4> <b> URL: </b> <a href="{{ patron.url }}" target="_blank"> Link original </a> </h4>
 <h4> <b> Etiquetas: </b> 
   {% if patron.labels %}
-  {% for lb in patron.labels.split(',') %}
+  {% for lb in patron.labels %}
   <span class="label label-info"> {{lb}}  </span> &nbsp;   
   {% endfor %}
   {% endif %}

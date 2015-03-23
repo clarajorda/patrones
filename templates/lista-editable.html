@@ -30,7 +30,7 @@
 
     <!-- show the labels -->
     {% if p.labels %}
-    {% for lb in p.labels.split(',') %}
+    {% for lb in p.labels %}
     <span class="label label-info"> {{lb}}  </span> &nbsp;   
     {% endfor %}
     {% endif %}
