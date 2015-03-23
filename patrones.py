@@ -70,11 +70,14 @@ def save_entry():
     g.db.execute('insert into patrones (titulo, descripcion, url) values (%s, %s, %s) returning id', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')) )
     current_id = g.db.fetchone()[0] 
     values = request.form.get('labels').split(',')
-    tupla_values = [(current_id,x,) for x in values if x]
+    print values
+    values_norm = [(x.title()) for x in values if x]
+    tupla_values = [(current_id,x.title()) for x in list(set(values_norm)) if x]
+    print tupla_values
     g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
     g.conn.commit()
-    flash('New entry was successfully posted', 'success') #success, info, warning o danger
-    return redirect(url_for('show_patrones'))
+    flash('Se incluyo el patron correctamente', 'success') #success, info, warning o danger
+    return redirect(url_for('show_and_edit_patrones'))
 
 # -- show the list of patterns
 @app.route('/list') 
@@ -87,10 +90,6 @@ def show_patrones():
 # -- show the editable list
 @app.route('/list-editable')
 def show_and_edit_patrones():
-    # g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    # patrones = extract_pattern(g.db)
-    # return render_template('lista-editable.html', patrones=patrones)
-
     g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
                     on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in g.db.fetchall() ]    
@@ -127,7 +126,7 @@ def edit_pattern(id_pattern):
     g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
     g.conn.commit()
 
-    flash('Edition was successfully posted')
+    flash('Se edito el patron correctamente','success')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 
 # -- remove an entry from the database
@@ -136,8 +135,8 @@ def remove_entry(id_pattern):
     g.db.execute('delete from patrones where id = %s', (id_pattern,))
     g.db.execute('delete from labels where patron_id = %s', (id_pattern,))
     g.conn.commit()
-    flash('Pattern was successfully removed')
-    return redirect(url_for('show_patrones'))
+    flash('El patron fue borrado correctamente','success')
+    return redirect(url_for('show_and_edit_patrones'))
 
 # -- list all labels for the autocompletion
 @app.route('/labels/list')
