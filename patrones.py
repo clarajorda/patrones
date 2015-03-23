@@ -71,7 +71,6 @@ def save_entry():
     current_id = g.db.fetchone()[0] 
     values = request.form.get('labels').split(',')
     tupla_values = [(current_id,x,) for x in values if x]
-    # print tupla_values
     g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
     g.conn.commit()
     flash('New entry was successfully posted', 'success') #success, info, warning o danger
@@ -80,10 +79,8 @@ def save_entry():
 # -- show the list of patterns
 @app.route('/list') 
 def show_patrones():
-    # cur = g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    # patrones = extract_pattern(cur)
-
-    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
+    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+                    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in g.db.fetchall() ]    
     return render_template('lista.html', patrones=patrones)
 
@@ -97,7 +94,8 @@ def show_and_edit_patrones():
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
-    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url having patrones.id = %s''', (id_pattern,) )
+    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+                    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url having patrones.id = %s''', (id_pattern,) )
     patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in g.db.fetchall() ]
     return render_template('single-pattern.html', patron=patron[0])
 
@@ -132,6 +130,7 @@ def remove_entry(id_pattern):
     g.db.execute('delete from patrones where id = %s', (id_pattern,))
     g.db.execute('delete from labels where patron_id = %s', (id_pattern,))
     g.conn.commit()
+    flash('Pattern was successfully removed')
     return redirect(url_for('show_patrones'))
 
 # -- list all labels for the autocompletion
