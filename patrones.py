@@ -1,10 +1,14 @@
 # all the imports
 import os, urlparse
 import psycopg2
+import psycopg2.extensions
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODEARRAY)
 import sys, logging
 from flask import Flask, request, session, g, redirect, url_for, \
      abort, render_template, flash, jsonify
 from flask_bootstrap import Bootstrap
+
 
 
 # configuration
@@ -123,7 +127,6 @@ def edit_pattern(id_pattern):
     g.db.execute('delete from labels where patron_id = %s', (id_pattern,) )
     g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
     g.conn.commit()
-
     flash('Se edito el patron correctamente','success')
     return redirect(url_for('show_single_pattern',id_pattern=id_pattern))
 

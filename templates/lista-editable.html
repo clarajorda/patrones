@@ -26,7 +26,7 @@
     
     <!-- show the title and description -->
     <a href="{{ url_for('show_single_pattern', id_pattern=p.id) }}"> <h4 class="list-group-item-heading">{{ p.titulo }} </h4> </a>
-    <p class="list-group-item-text">{{p.descripcion | safe}}</p>
+    <!-- <p class="list-group-item-text">{{p.descripcion | safe}}</p> --> 
 
     <!-- show the labels -->
     {% if p.labels %}
