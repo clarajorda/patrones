@@ -21,9 +21,9 @@
       <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
 	  <li {% if 'home' == active_page%} class="active" {% endif %}> <a href="{{ url_for('go_home') }}"                > Home            </a></li>
-          <li {% if 'list' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_patrones') }}"          > Lista patrones  </a></li>
+          <li {% if 'list' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones') }}" > Lista patrones  </a></li>
           <li {% if 'inst' == active_page%} class="active" {% endif %}> <a href="{{ url_for('insert_entry')  }}"          > Insertar patron </a></li>
-          <li {% if 'edit' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron   </a></li>
+          <!-- <li {% if 'edit' == active_page%} class="active" {% endif %}> <a href="{{ url_for('show_and_edit_patrones')}}"  > Editar patron   </a></li> --> 
 	  <li> <p> </p>
 
 	    <form action="{{url_for('search')}}" method="POST">

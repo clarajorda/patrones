@@ -87,9 +87,15 @@ def show_patrones():
 # -- show the editable list
 @app.route('/list-editable')
 def show_and_edit_patrones():
-    g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
-    patrones = extract_pattern(g.db)
+    # g.db.execute('select id, titulo, descripcion, url from patrones order by id desc')
+    # patrones = extract_pattern(g.db)
+    # return render_template('lista-editable.html', patrones=patrones)
+
+    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+                    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=row[4] ) for row in g.db.fetchall() ]    
     return render_template('lista-editable.html', patrones=patrones)
+
 
 # -- show the description for a single patter
 @app.route('/show-pattern-<id_pattern>')
