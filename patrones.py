@@ -149,9 +149,18 @@ def list_labels():
 # -- make a search in the database
 @app.route('/search', methods=['POST'])
 def search():
-    g.db.execute(''' select id, titulo, descripcion,url from patrones where titulo like %s or descripcion like %s ''',  ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%' ) )
-    patrones = extract_pattern(g.db)
-    return render_template('lista.html', patrones=patrones)
+    #g.db.execute(''' select id, titulo, descripcion,url from patrones where titulo like %s or descripcion like %s ''',  ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%' ) )
+    #patrones = extract_pattern(g.db)
+    #return render_template('lista-editable.html', patrones=patrones)
+
+    g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+    on patrones.id = labels.patron_id where titulo like %s or descripcion like %s or labels.etiqueta like %s
+    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''', ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%') )
+
+    # g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+    #                on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url having patrones.id = %s''', (id_pattern,) )
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
+    return render_template('lista-editable.html', patrones=patrones)
 
 # -- main function
 if __name__ == '__main__':
