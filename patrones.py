@@ -73,10 +73,15 @@ def insert_entry():
 def save_entry():
     g.db.execute('insert into patrones (titulo, descripcion, url) values (%s, %s, %s) returning id', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')) )
     current_id = g.db.fetchone()[0]
-    values = request.form.get('labels').split(',')
-    values_norm = [(x.title()) for x in values if x]
-    tupla_values = [(current_id,x.title()) for x in list(set(values_norm)) if x]
-    g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
+
+    #values = request.form.get('labels').split(',')
+    #values_norm = [(x.title()) for x in values if x]
+    #tupla_values = [(current_id,x.title()) for x in list(set(values_norm)) if x]
+
+    values = list(set( (request.form.get('labels').title() ).split(',')))
+    tupla  = [ (current_id, x) for x in values if x  ]
+
+    g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla )
     g.conn.commit()
     flash('Se incluyo el patron correctamente', 'success') #success, info, warning o danger
     return redirect(url_for('show_and_edit_patrones'))
@@ -103,7 +108,7 @@ def edit_entry(id_pattern):
     g.db.execute('select id, titulo, descripcion, url from patrones where id = %s', (id_pattern,) )
     patron = extract_pattern(g.db)
     g.db.execute('select etiqueta from labels where patron_id = %s', (id_pattern,) )
-    labels = sorted( [ row[0] for row in g.db.fetchall() ] )
+    labels = sorted ([ row[0] for row in g.db.fetchall() ])
     return render_template('editar.html', patron=patron[0], labels=','.join(labels))
 
 # -- update the database with the edit information
