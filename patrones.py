@@ -116,8 +116,11 @@ def edit_entry(id_pattern):
 def edit_pattern(id_pattern):
     g.db.execute('update patrones set titulo = %s, descripcion = %s, url = %s where id = %s', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern) )
 
-    values = request.form.get('labels').split(',')
-    tupla_values = [ ( int(id_pattern),x ) for x in values if x]
+    #values = request.form.get('labels').split(',')
+    #tupla_values = [ ( int(id_pattern),x ) for x in values if x]
+
+    values = list(set( (request.form.get('labels').title() ).split(',')))
+    tupla_values  = [ (id_pattern, x) for x in values if x  ]
 
     g.db.execute('delete from labels where patron_id = %s', (id_pattern,) )
     g.db.executemany('insert into labels (patron_id, etiqueta) values (%s, %s)', tupla_values )
