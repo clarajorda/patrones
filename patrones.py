@@ -86,7 +86,7 @@ def save_entry():
 def show_and_edit_patrones():
     g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
                     on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted((row[4]).split(','))) for row in g.db.fetchall() ]  
+    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(','))) for row in g.db.fetchall() ]  
     return render_template('lista-editable.html', patrones=patrones)
 
 # -- show the description for a single patter
@@ -94,7 +94,7 @@ def show_and_edit_patrones():
 def show_single_pattern(id_pattern):
     g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
                     on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url having patrones.id = %s''', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted((row[4]).split(',')) ) for row in g.db.fetchall() ]
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
@@ -103,10 +103,8 @@ def edit_entry(id_pattern):
     g.db.execute('select id, titulo, descripcion, url from patrones where id = %s', (id_pattern,) )
     patron = extract_pattern(g.db)
     g.db.execute('select etiqueta from labels where patron_id = %s', (id_pattern,) )
-    labels = [ row[0] for row in g.db.fetchall() ]
-    labels_norm = [(x.title()) for x in labels if x]
-    labels_values = set(labels_norm)
-    return render_template('editar.html', patron=patron[0], labels=','.join(labels_values))
+    labels = sorted( [ row[0] for row in g.db.fetchall() ] )
+    return render_template('editar.html', patron=patron[0], labels=','.join(labels))
 
 # -- update the database with the edit information
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
