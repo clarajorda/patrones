@@ -92,6 +92,18 @@
       source: labels.ttAdapter(),
     }
   });
+  $('#labels').on('beforeItemAdd', function(event) {
+    // Capitalize the first letter of each word
+    var item = event.item.replace(/\w\S*/g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
+
+    if (item != event.item) {
+      // Add the capitalized item
+      event.cancel = true;
+      $('#labels').tagsinput('add', item);
+    }
+  });
 
   $('.textarea').wysihtml5({
     toolbar: {
