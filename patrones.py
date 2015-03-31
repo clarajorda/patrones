@@ -158,11 +158,12 @@ def list_labels():
 # -- make a search in the database
 @app.route('/search', methods=['POST'])
 def search():
+    search = '%' + request.form.get('busqueda').lower() + '%'
     #QUERY
     g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') 
     from patrones left join labels on patrones.id = labels.patron_id 
-    where patrones.id in (select labels.patron_id from labels where labels.etiqueta like %s) or titulo like %s or descripcion like %s  
-    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url  ''', ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%'))
+    where patrones.id in (select labels.patron_id from labels where lower(labels.etiqueta) like %s) or lower(titulo) like %s or lower(descripcion) like %s  
+    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url  ''', ( search, search, search))
     
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
     return render_template('lista-editable.html', patrones=patrones)
