@@ -93,12 +93,15 @@ def show_and_edit_patrones():
 # -- list patterns by label
 @app.route('/labels/<label_name>')
 def list_labels_by_name(label_name):
-    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
-    on patrones.id = labels.patron_id where labels.etiqueta like %s group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''', (label_name,) )
+    g.db.execute('''select patrones.id, patrones.titulo , patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') 
+    from patrones left join labels on patrones.id = labels.patron_id 
+    where patrones.id in (select labels.patron_id from labels where labels.etiqueta like %s) 
+    group by patrones.id, patrones.titulo , patrones.descripcion, patrones.url ''', (label_name,) )
     
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(','))) for row in g.db.fetchall() ]  
     return render_template('lista-editable.html', patrones=patrones)
-    
+
+
 # -- show the description for a single pattern
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
@@ -146,14 +149,29 @@ def list_labels():
     return jsonify(results=labels)
 
 # -- make a search in the database
+#@app.route('/search', methods=['POST'])
+#def search():
+#    g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+#    on patrones.id = labels.patron_id where titulo like %s or descripcion like %s or labels.etiqueta like %s
+#    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''', ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%') )
+
+#    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
+#    return render_template('lista-editable.html', patrones=patrones)
+
+
+# -- make a search in the database
 @app.route('/search', methods=['POST'])
 def search():
-    g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
-    on patrones.id = labels.patron_id where titulo like %s or descripcion like %s or labels.etiqueta like %s
-    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''', ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%') )
+    g.db.execute(''' select patrones.id from patrones left join labels on patrones.id = labels.patron_id where titulo like %s or descripcion like %s or labels.etiqueta like %s
+    group by patrones.id''', ( '%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%','%'+request.form.get('busqueda')+'%') )
+    patrones_id = [ row[0] for row in g.db.fetchall() ] ## this is a list
 
+    g.db.executemany('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
+                        on patrones.id = labels.patron_id where patrones.id = %s group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url ''', (patrones_id,) )
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
     return render_template('lista-editable.html', patrones=patrones)
+
+    
 
 # -- main function
 if __name__ == '__main__':
