@@ -82,7 +82,7 @@ def save_entry():
 def show_and_edit_patrones():
     #QUERY
     g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
-                    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url''')
+                    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url order by patrones.titulo''')
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(','))) for row in g.db.fetchall() ]  
     return render_template('lista-editable.html', patrones=patrones)
 
@@ -93,7 +93,8 @@ def list_labels_by_name(label_name):
     g.db.execute('''select patrones.id, patrones.titulo , patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') 
     from patrones left join labels on patrones.id = labels.patron_id 
     where patrones.id in (select labels.patron_id from labels where labels.etiqueta like %s) 
-    group by patrones.id, patrones.titulo , patrones.descripcion, patrones.url ''', (label_name,) )
+    group by patrones.id, patrones.titulo , patrones.descripcion, patrones.url 
+    order by patrones.titulo ''', (label_name,) )
     
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(','))) for row in g.db.fetchall() ]  
     return render_template('lista-editable.html', patrones=patrones)
@@ -163,7 +164,8 @@ def search():
     g.db.execute(''' select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') 
     from patrones left join labels on patrones.id = labels.patron_id 
     where patrones.id in (select labels.patron_id from labels where lower(labels.etiqueta) like %s) or lower(titulo) like %s or lower(descripcion) like %s  
-    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url  ''', ( search, search, search))
+    group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url 
+    order by patrones.titulo''', ( search, search, search))
     
     patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
     return render_template('lista-editable.html', patrones=patrones)
