@@ -67,7 +67,8 @@ def insert_entry():
 @app.route('/save-entry', methods=['POST'])
 def save_entry():
     #QUERY
-    g.db.execute('insert into patrones (titulo, descripcion, url) values (%s, %s, %s) returning id', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')) )
+    g.db.execute('insert into patrones (titulo, descripcion, url, timecreated, lastmodified) values (%s, %s, %s, now(), now()) returning id', 
+                 (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url')) )
     current_id = g.db.fetchone()[0]
     values = list(set( (request.form.get('labels').title() ).split(',')))
     tupla  = [ (current_id, x) for x in values if x  ]
@@ -83,7 +84,14 @@ def show_and_edit_patrones():
     #QUERY
     g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') from patrones left join labels 
                     on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url order by patrones.titulo''')
-    patrones = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(','))) for row in g.db.fetchall() ]  
+    patrones = [ {
+        'id': row[0],
+        'titulo': row[1],
+        'descripcion': row[2],
+        'url': row[3],
+        'labels': sorted(row[4].split(',')) if row[4] else [],
+    } for row in g.db.fetchall() ]
+
     return render_template('lista-editable.html', patrones=patrones)
 
 # -- list patterns by label
@@ -104,11 +112,11 @@ def list_labels_by_name(label_name):
 @app.route('/show-pattern-<id_pattern>')
 def show_single_pattern(id_pattern):
     #QUERY
-    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, string_agg(labels.etiqueta, ',') 
+    g.db.execute('''select patrones.id, patrones.titulo, patrones.descripcion, patrones.url, patrones.timecreated, patrones.lastmodified, string_agg(labels.etiqueta, ',') 
     from patrones left join labels 
-    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url 
+    on patrones.id = labels.patron_id group by patrones.id, patrones.titulo, patrones.descripcion, patrones.url, patrones.timecreated, patrones.lastmodified
     having patrones.id = %s''', (id_pattern,) )
-    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], labels=sorted(row[4].split(',')) ) for row in g.db.fetchall() ]
+    patron = [ dict( id=row[0], titulo=row[1], descripcion=row[2], url=row[3], timecreated=row[4], lastmodified=row[5], labels=sorted(row[6].split(',')) ) for row in g.db.fetchall() ]
     return render_template('single-pattern.html', patron=patron[0])
 
 # -- edit a pattern
@@ -126,7 +134,8 @@ def edit_entry(id_pattern):
 @app.route('/edit-pattern-<id_pattern>', methods=['POST'])
 def edit_pattern(id_pattern):
     #QUERY
-    g.db.execute('update patrones set titulo = %s, descripcion = %s, url = %s where id = %s', (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern) )
+    g.db.execute('update patrones set titulo = %s, descripcion = %s, url = %s, lastmodified = now() where id = %s', 
+                 (request.form.get('titulo'), request.form.get('descripcion'), request.form.get('url'), id_pattern) )
     values = list(set( (request.form.get('labels').title() ).split(',')))
     tupla_values  = [ (id_pattern, x) for x in values if x  ]
     #QUERY
